@@ -30,23 +30,24 @@ def getTweet():
 
 #artist
 
-@app.route('/getArtistID', methods = ['GET'])
-def getArtistID():
-    artist = request.args['artist']
-    artistf = replaceSpaces(artist)
-    #testString = 'https://api.spotify.com/v1/search?query='+artist+'&type=artist'
-    artistStringData = urllib2.urlopen('https://api.spotify.com/v1/search?query='+artistf+'&type=artist').read()
-    artistJson = json.loads(artistStringData)
-    #return json.dumps(artistJson)
-    #return json.dumps(artistJson)
-    id = artistJson['artists']['items'][0]['id']
-    #print artistJson
-    return id
+# @app.route('/getArtistID', methods = ['GET'])
+# def getArtistID():
+#     artist = request.args['artist']
+#     artistf = replaceSpaces(artist)
+#     #testString = 'https://api.spotify.com/v1/search?query='+artist+'&type=artist'
+#     artistStringData = urllib2.urlopen('https://api.spotify.com/v1/search?query='+artistf+'&type=artist').read()
+#     artistJson = json.loads(artistStringData)
+#     #return json.dumps(artistJson)
+#     #return json.dumps(artistJson)
+#     id = artistJson['artists']['items'][0]['id']
+#     #print artistJson
+#     return id
 
 @app.route('/getTopTrack', methods = ['GET'])
 def getTopTrack():
     artist = request.args['artist']
-    uid = getArtistID()
+    artistf = replaceSpaces(artist)
+    uid = getArtistID(artistf)
 
     topTrackString =  urllib2.urlopen('https://api.spotify.com/v1/artists/'+uid+'/top-tracks?country=US').read()
     topTrackJson = json.loads(topTrackString)
@@ -74,6 +75,11 @@ def getInfo():
     info = {'Top Track': topTrack, 'Tweets': tweets, 'Wiki': wiki}
     return json.dumps(info)
 
+
+
+
+#-----------------------Helper Functions----------------------------
+
 def getWikiExcerpt(artistf):
     wikiString =  urllib2.urlopen('https://en.wikipedia.org/w/api.php?action=query&titles='+artistf+'&prop=revisions&rvprop=content&format=json').read()
     wikiJson = json.loads(wikiString)
@@ -81,6 +87,16 @@ def getWikiExcerpt(artistf):
     excerpt = wikiJson['query']['pages'][id]['revisions'][0]['*']
     excerptString = json.dumps(excerpt)
     return excerptString
+
+def getArtistID(artistf):
+    #testString = 'https://api.spotify.com/v1/search?query='+artist+'&type=artist'
+    artistStringData = urllib2.urlopen('https://api.spotify.com/v1/search?query='+artistf+'&type=artist').read()
+    artistJson = json.loads(artistStringData)
+    #return json.dumps(artistJson)
+    #return json.dumps(artistJson)
+    id = artistJson['artists']['items'][0]['id']
+    #print artistJson
+    return id
 
 def getWikiRedirect(excerptString):
     for index in xrange(13, len(excerptString)): #13 characters in is when redirect title starts
